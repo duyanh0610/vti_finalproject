@@ -14,6 +14,7 @@ $(function () {
     setTimeout(hasAuthorized, 50);
 });
 
+
 function isLogin() {
     return !!localStorage.getItem("ID");
 }
@@ -36,12 +37,20 @@ function clickNavHome() {
     $(".main").load("home.html");
 }
 function clickNavAccountList(){
-    $(".main").load("accountList.html");
+    $(".main").load("accountList.html")
+   
+   
     buildAccountTable()
+   
+   
 }
 function clickNavDepartmentList(){
-    $(".main").load("departmentList.html");
-    buildAccountTable()
+    $(".main").load("departmentList.html") 
+  
+ 
+    buildDepartmentTable()
+
+    
 }
 
 function showSuccessSnackBar(snackbarMessage) {

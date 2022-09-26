@@ -19,13 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,11 +35,13 @@ public class AccountServiceImplement implements AccountService {
     private final ModelMapper modelMapper;
     private final QueryService<Account> queryService;
     private final DepartmentRepository departmentRepository;
-    public AccountServiceImplement(AccountRepository accountRepository, ModelMapper modelMapper, QueryService<Account> queryService, DepartmentRepository departmentRepository) {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    public AccountServiceImplement(AccountRepository accountRepository, ModelMapper modelMapper, QueryService<Account> queryService, DepartmentRepository departmentRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.accountRepository = accountRepository;
         this.modelMapper = modelMapper;
         this.queryService = queryService;
         this.departmentRepository = departmentRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -69,6 +68,7 @@ public class AccountServiceImplement implements AccountService {
                 .map(department ->{
                     Account account = modelMapper.map(creatingAccountForm, Account.class)
                             .id(null)
+                            .password(bCryptPasswordEncoder.encode(creatingAccountForm.getPassword()))
                             .department(modelMapper.map(department, Department.class));
                     return accountRepository.save(account);
                 }).map(account -> modelMapper.map(account, AccountDTO.class))
@@ -83,7 +83,7 @@ public class AccountServiceImplement implements AccountService {
                     Optional.ofNullable(updatingAccountForm.getDepartmentId())
                             .flatMap(departmentId -> departmentRepository.findById(departmentId)
                                     .map(department -> {
-                                        account.id(id).department(department);
+                                        account.id(id).department(department).password(bCryptPasswordEncoder.encode(updatingAccountForm.getPassword()));
                                         return account;
                                     })).orElseGet(() -> account.id(id).department(null));
                     return account;
@@ -233,21 +233,16 @@ public class AccountServiceImplement implements AccountService {
         if (accountCriteria.getDepartmentName() != null) {
             where = where.and(queryService.buildStringFilter("departmentName", accountCriteria.getDepartmentName()));
         }
+
         if (accountCriteria.getSearch() != null) {
             Specification<Account> orSpec = Specification.where(null);
 
             orSpec = orSpec
                     .or(queryService.buildStringFilter(Constants.ACCOUNT.USERNAME, accountCriteria.getSearch()))
                     .or(queryService.buildStringFilter(Constants.ACCOUNT.FIRST_NAME, accountCriteria.getSearch()))
-                    .or(queryService.buildStringFilter(Constants.ACCOUNT.LAST_NAME, accountCriteria.getSearch()))
-                    .or(queryService.buildStringFilter("departmentName", accountCriteria.getDepartmentName()));
+                    .or(queryService.buildStringFilter(Constants.ACCOUNT.LAST_NAME, accountCriteria.getSearch()));
+//                    .or(queryService.buildStringFilter("departmentName", accountCriteria.getDepartmentName()));
 
-//            if(Utils.checkStringIsDigit(accountCriteria.getSearch().getContains())){
-//                Integer searchValue = Integer.valueOf(accountCriteria.getSearch().getContains());
-//                IntegerFilter integerFilter = new IntegerFilter();
-//                integerFilter.setEquals(searchValue);
-//                orSpec = orSpec.or(queryService.buildIntegerFilter(Constants.ACCOUNT.ID,integerFilter ));
-//            }
             where = where.and(orSpec);
         }
 

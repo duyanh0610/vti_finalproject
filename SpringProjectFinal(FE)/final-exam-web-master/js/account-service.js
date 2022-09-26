@@ -1,10 +1,9 @@
+
 var accounts = []
-var baseUrl = "http://localhost:8080/api/v1/accounts"
-let currentPage = 1;
-const size = 10;
+var baseUrlAccount = "http://localhost:8080/api/v1/accounts"
+
 // sorting
-let sortField = "id";
-let isAsc = true;
+
 function Account(id, username, lastName, firstName, role, deptId, deptName) {
     this.id = id;
     this.username = username;
@@ -16,29 +15,30 @@ function Account(id, username, lastName, firstName, role, deptId, deptName) {
 }
 function buildAccountTable() {
     $('tbody').empty();
+
     getaccounts();
 }
 function getaccounts() {
 
-    let url = baseUrl  + '?page='
+    let urlAccount = baseUrlAccount + '?page='
         + `${currentPage - 1}` + '&size=' + size
         + "&sort=" + sortField + "," + (isAsc ? "asc" : "desc");
-
-    const searchValue = document.getElementById("search-account-input");
-    if (searchValue?.value) {
-        url += "&search.contains=" + searchValue.value;
+    
+    const searchValueAccount = document.getElementById("search-account-input");
+    // console.log(searchValueAccount)
+    if (searchValueAccount?.value) {
+        urlAccount += "&search.contains=" + searchValueAccount.value;
     }
 
     // call API from server
     $.ajax({
-        url: url,
+        url: urlAccount,
         type: 'GET',
         contentType: "application/json",
         dataType: 'json', // datatype return
         headers: headers,
         success: function(data, textStatus, xhr) {
             // success
-            
             parseAccountData(data);
             fillAccountToTable();
             fillAccountPaging(data.numberOfElements, data.totalPages);
@@ -69,17 +69,17 @@ function fillAccountToTable(){
     accounts.forEach(function(item, index){
         $('tbody').append(
             '<tr>' +
-            '<td>' + item.id + '</td>' +
-            '<td>' + item.username + '</td>' +
-            '<td>' + item.firstName +' ' + item.lastName + '</td>' +
-            '<td>' + item.role + '</td>' +
-            '<td>' + item.departmentName + '</td>' +
+            '<td id = "accountId">' + item.id + '</td>' +
+            '<td id = "accountUsername">' + item.username + '</td>' +
+            '<td id = "accountFullName">' + item.firstName +' ' + item.lastName + '</td>' +
+            '<td id = "accountRole">' + item.role + '</td>' +
+            '<td id = "accountDepartmentName">' + item.departmentName + '</td>' +
             '<td>' +
             '<a class="edit" title="Edit" data-toggle="tooltip" onclick="openUpdateAccountModal('
             + item.id + ')">'
             + '<i class="material-icons">&#xE254;</i>'
             + '</a>' +
-            '<a class="delete" title="Delete" data-toggle="tooltip" onclick="openConfirmDelete('
+            '<a class="delete" title="Delete" data-toggle="tooltip" onclick="openConfirmDeleteAccount('
             + item.id + ')">'
             + '<i class="material-icons">&#xE872;</i>'
             + '</a>' +
@@ -154,8 +154,8 @@ function changeAccountPage(page) {
     buildAccountTable();
 }
 function openCreateAccountModal() {
-    resetForm();
-    openModal();
+    resetFormAccount();
+    openModalAccount();
 }
 function openUpdateAccountModal(id) {
 
@@ -168,19 +168,18 @@ function openUpdateAccountModal(id) {
     document.getElementById("firstName").value = accounts[index].firstName;
     document.getElementById("lastName").value = accounts[index].lastName;
     document.getElementById("role").value = accounts[index].role;
-    document.getElementById(
-        "departmentId").value = accounts[index].departmentId;
+    document.getElementById("departmentId").value = accounts[index].departmentId;
 
-    openModal();
+    openModalAccount();
 }
-function resetForm() {
+function resetFormAccount() {
     document.getElementById("username").value = "";
     document.getElementById("firstName").value = "";
     document.getElementById("lastName").value = "";
     document.getElementById("role").value = "";
     document.getElementById("departmentId").value = "";
 }
-function openModal() {
+function openModalAccount() {
     $('#myCreateAccountModal').modal('show');
 }
 function createAccount() {
@@ -205,14 +204,14 @@ function createAccount() {
     };
 
     $.ajax({
-        url: baseUrl,
+        url: baseUrlAccount,
         type: 'POST',
         data: JSON.stringify(account), // body
         contentType: "application/json", // type of body (json, xml, text)
         headers: headers,
         success: function (data, textStatus, xhr) {
-            hideModal();
-            showSuccessAlert();
+            hideModalAccount();
+            showSuccessAlertAccount();
             buildAccountTable();
         },
         error(jqXHR, textStatus, errorThrown) {
@@ -244,7 +243,7 @@ function updateAccount() {
     };
 
     $.ajax({
-        url: url + "/" + id,
+        url: baseUrlAccount + "/" + id,
         type: 'PUT',
         data: JSON.stringify(account),
         contentType: "application/json", // type of body (json, xml, text)
@@ -257,8 +256,8 @@ function updateAccount() {
             }
 
             // success
-            hideModal();
-            showSuccessAlert();
+            hideModalAccount();
+            showSuccessAlertAccount();
             buildAccountTable();
         }
     });
@@ -266,7 +265,7 @@ function updateAccount() {
 function deleteAccount(id) {
     // TODO validate
     $.ajax({
-        url: baseUrl + "/" + id,
+        url: baseUrlAccount+ "/" + id,
         type: 'DELETE',
         headers: headers,
         success: function (result) {
@@ -277,25 +276,25 @@ function deleteAccount(id) {
             }
 
             // success
-            showSuccessAlert();
+            showSuccessAlertAccount();
             buildAccountTable();
         }
     });
 }
-function openConfirmDelete(id) {
+function openConfirmDeleteAccount(id) {
     // get index from employee's id
     const index = accounts.findIndex(x => x.id === id);
-    const name = accounts[index].name;
+    
 
-    const result = confirm("Bạn có muốn xóa " + name + " không?");
+    const result = confirm("Bạn có muốn xóa " + accounts[index].username + " không?");
     if (result) {
         deleteAccount(id);
     }
 }
-function hideModal() {
+function hideModalAccount() {
     $('#myCreateAccountModal').modal('hide');
 }
-function showSuccessAlert() {
+function showSuccessAlertAccount() {
     $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
         $("#success-alert").slideUp(500);
     });
@@ -309,6 +308,6 @@ function saveAccount() {
         updateAccount();
     }
 }
-function setupSearchEvent() {
+function setupSearchAccountEvent() {
     buildAccountTable();
 }

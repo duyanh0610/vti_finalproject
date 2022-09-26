@@ -170,6 +170,7 @@ public class DepartmentServiceImplement implements DepartmentService{
 
     private Specification<Department> buildWhere(DepartmentCriteria departmentCriteria){
         Specification<Department> where = Specification.where(null);
+
         if(departmentCriteria.getName() != null) {
             where = where.and(queryService.buildStringFilter(Constants.DEPARTMENT.NAME, departmentCriteria.getName()));
         }
@@ -185,12 +186,13 @@ public class DepartmentServiceImplement implements DepartmentService{
         if(departmentCriteria.getAccountUsername() != null) {
             where = where.and(queryService.buildStringFilter("accountUsername", departmentCriteria.getAccountUsername()));
         }
+
         if(departmentCriteria.getSearch() != null){
             Specification<Department> orSpec = Specification.where(null);
 
             orSpec = orSpec
-                    .and(queryService.buildStringFilter(Constants.DEPARTMENT.NAME, departmentCriteria.getSearch()))
-                    .and(queryService.buildStringFilter(Constants.DEPARTMENT.TYPE,departmentCriteria.getSearch()));
+                    .or(queryService.buildStringFilter(Constants.DEPARTMENT.NAME, departmentCriteria.getSearch()))
+                    .or(queryService.buildStringFilter(Constants.DEPARTMENT.TYPE,departmentCriteria.getSearch()));
 
             where = where.and(orSpec);
         }

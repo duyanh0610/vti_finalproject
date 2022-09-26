@@ -22,9 +22,7 @@ public class CustomSpecification<T> implements Specification<T> {
         Predicate predicate = null;
 
         String field = expression.getField();
-
         String operator = expression.getOperator();
-
         Object value = expression.getValue();
 
         switch (operator){

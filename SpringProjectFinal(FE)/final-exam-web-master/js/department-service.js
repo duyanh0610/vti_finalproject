@@ -1,32 +1,32 @@
+
 var departments = []
-var baseUrl = "http://localhost:8080/api/v1/departments"
-let currentPage = 1;
-const size = 10;
+var baseUrlDepartment = "http://localhost:8080/api/v1/departments"
+ currentPageDepartment = 1;
+ sizePageDepartment = 10;
 // sorting
-let sortField = "id";
-let isAsc = true;
-function Department(id, name, totalMember, firstName, role, deptId, deptName) {
+sortFieldDepartment = "id";
+isAscDepartment = true;
+function Department(id, name, totalMember, type, createdDate) {
     this.id = id;
-    this.username = username;
-    this.lastName = lastName;
-    this.firstName = firstName;
-    this.role = role;
-    this.departmentId = deptId;
-    this.departmentName = deptName;
+    this.name = name;
+    this.totalMember = totalMember;
+    this.type = type;
+    this.createdDate = createdDate;
 }
-function buildAccountTable() {
+
+function buildDepartmentTable() {
     $('tbody').empty();
-    getaccounts();
-}
-function getaccounts() {
+    getDepartments();
+}       
+function getDepartments() {
 
-    let url = baseUrl  + '?page='
-        + `${currentPage - 1}` + '&size=' + size
-        + "&sort=" + sortField + "," + (isAsc ? "asc" : "desc");
+    let url = "http://localhost:8080/api/v1/departments"  + '?page='
+        + `${currentPageDepartment - 1}` + '&size=' + sizePageDepartment
+        + "&sort=" + sortFieldDepartment + "," + (isAscDepartment ? "asc" : "desc");
 
-    const searchValue = document.getElementById("search-account-input");
-    if (searchValue?.value) {
-        url += "&search.contains=" + searchValue.value;
+    const searchValueDepartment = document.getElementById("search-department-input");
+    if (searchValueDepartment?.value) {
+        url += "&search.contains=" + searchValueDepartment.value;
     }
 
     // call API from server
@@ -37,12 +37,11 @@ function getaccounts() {
         dataType: 'json', // datatype return
         headers: headers,
         success: function(data, textStatus, xhr) {
-            // success
-            
-            parseAccountData(data);
-            fillAccountToTable();
-            fillAccountPaging(data.numberOfElements, data.totalPages);
-            fillAccountSorting();
+            // success 
+            parseDepartmentData(data);
+            fillDepartmentToTable();
+            fillDepartmentPaging(data.numberOfElements, data.totalPages);
+            fillDepartmentSorting();
         },
         error(jqXHR, textStatus, errorThrown) {
             // TODO
@@ -50,32 +49,32 @@ function getaccounts() {
         }
     });
 }
-function parseAccountData(data){
-    
-    accounts = []
+function parseDepartmentData(data){
+    departments =[]
     data.content.forEach(function(item, index){
-        accounts.push(new Account(
-            item.id, item.username,
-            item.lastName, item.firstName, 
-            item.role, 
-            item.departmentId, item.departmentName))
+        departments.push(new Department(
+            item.id, item.name,
+            item.totalMember, item.type, 
+            item.createdDate))
 
     })
-    // accounts = accounts.reverse()
+    
    
 }
-function fillAccountToTable(){
-    // console.log(accounts)
-    accounts.forEach(function(item, index){
+function fillDepartmentToTable(){
+    // console.log(departments)
+    departments.forEach(function(item, index){
+        var mem = item.totalMember == null ? 0 : item.totalMember
+    
         $('tbody').append(
             '<tr>' +
-            '<td>' + item.id + '</td>' +
-            '<td>' + item.username + '</td>' +
-            '<td>' + item.firstName +' ' + item.lastName + '</td>' +
-            '<td>' + item.role + '</td>' +
-            '<td>' + item.departmentName + '</td>' +
+            '<td id = "departmentId">' + item.id + '</td>' +
+            '<td id = "departmentName">' + item.name + '</td>' +
+            '<td id = "departmentType">' + item.type + '</td>' +
+            '<td id = "departmentTotalMember">' + mem + '</td>' +
+            '<td id = "departmentCreateDate">' + item.createdDate + '</td>' +
             '<td>' +
-            '<a class="edit" title="Edit" data-toggle="tooltip" onclick="openUpdateAccountModal('
+            '<a class="edit" title="Edit" data-toggle="tooltip" onclick="openUpdateDepartmentModal('
             + item.id + ')">'
             + '<i class="material-icons">&#xE254;</i>'
             + '</a>' +
@@ -88,31 +87,31 @@ function fillAccountToTable(){
         )
     })
 }
-function fillAccountPaging(numberOfElements, totalPages){
-    
-    if (currentPage > 1) {
-        document.getElementById("account-previousPage-btn").disabled = false;
+function fillDepartmentPaging(numberOfElements, totalPages){
+    console.log(document.getElementById("department-previousPage-btn"))
+    if (currentPageDepartment > 1) {
+        document.getElementById("department-previousPage-btn").disabled = false;
     } else {
-        document.getElementById("account-previousPage-btn").disabled = true;
+        document.getElementById("department-previousPage-btn").disabled = true;
     }
 
     // next
-    if (currentPage < totalPages ) {
-        document.getElementById("account-nextPage-btn").disabled = false;
+    if (currentPageDepartment < totalPages ) {
+        document.getElementById("department-nextPage-btn").disabled = false;
     } else {
-        document.getElementById("account-nextPage-btn").disabled = true;
+        document.getElementById("department-nextPage-btn").disabled = true;
     }
 
     // text
-    document.getElementById("account-page-info").innerHTML = numberOfElements
-        + " tài khoản của trang " + currentPage + " / " + totalPages;
+    document.getElementById("department-page-info").innerHTML = numberOfElements
+        + " phòng ban của trang " + currentPageDepartment + " / " + totalPages;
 
 }
-function fillAccountSorting(){
-    const sortTypeClazz = isAsc ? "fa-sort-up" : "fa-sort-down";
+function fillDepartmentSorting(){
+    const sortTypeClazz = isAscDepartment ? "fa-sort-up" : "fa-sort-down";
     const defaultSortType = "fa-sort";
 
-    switch (sortField) {
+    switch (sortFieldDepartment) {
         case 'username':
             // changeIconSort("#username-sort", sortTypeClazz);
             // changeIconSort("#fullname-sort", defaultSortType);
@@ -125,146 +124,128 @@ function changeIconSort(id, sortTypeClazz) {
     document.getElementById(id).classList.remove("fa-sort", "fa-sort-up", "fa-sort-down");
     document.getElementById(id).classList.add(sortTypeClazz);
 }
-function changeAccountSort(field) {
-    if (field === sortField) {
-        isAsc = !isAsc;
+function changeDepartmentSort(field) {
+    if (field === sortFieldDepartment) {
+        isAscDepartment = !isAscDepartment;
     } else {
-        sortField = field;
-        isAsc = true;
+        sortFieldDepartment = field;
+        isAscDepartment = true;
     }
-    buildAccountTable();
+    buildDepartmentTable();
 }
 function changeIdSort(field) {
-    if (field === sortField) {
-        isAsc = !isAsc;
+    if (field === sortFieldDepartment) {
+        isAscDepartment = !isAscDepartment;
     } else {
-        sortField = field;
-        isAsc = true;
+        sortFieldDepartment = field;
+        isAscDepartment = true;
     }
-    buildAccountTable();
+    buildDepartmentTable();
 }
-function prevAccountPage() {
-    changeAccountPage(currentPage - 1);
+function prevDepartmentPage() {
+    changeDepartmentPage(currentPageDepartment - 1);
 }
-function nextAccountPage() {
-    changeAccountPage(currentPage + 1);
+function nextDepartmentPage() {
+    changeDepartmentPage(currentPageDepartment + 1);
 }
-function changeAccountPage(page) {
-    currentPage = page;
-    buildAccountTable();
+function changeDepartmentPage(page) {
+    currentPageDepartment = page;
+    buildDepartmentTable();
 }
-function openCreateAccountModal() {
+function openCreateDepartmentModal() {
     resetForm();
     openModal();
 }
-function openUpdateAccountModal(id) {
+function openUpdateDepartmentModal(id) {
 
     // get index from employee's id
-    const index = accounts.findIndex(x => x.id === id);
-
+    const index = departments.findIndex(x => x.id === id);
+    console.log(departments[index]);
     // fill data
-    document.getElementById("id").value = accounts[index].id;
-    document.getElementById("username").value = accounts[index].username;
-    document.getElementById("firstName").value = accounts[index].firstName;
-    document.getElementById("lastName").value = accounts[index].lastName;
-    document.getElementById("role").value = accounts[index].role;
-    document.getElementById(
-        "departmentId").value = accounts[index].departmentId;
-
+    document.getElementById("name").value = departments[index].name;
+    document.getElementById("totalMember").value = departments[index].totalMember;
+    document.getElementById("type").value = departments[index].type;
+   
     openModal();
 }
 function resetForm() {
-    document.getElementById("username").value = "";
-    document.getElementById("firstName").value = "";
-    document.getElementById("lastName").value = "";
-    document.getElementById("role").value = "";
-    document.getElementById("departmentId").value = "";
+    document.getElementById("departmentName").value = "";
+    document.getElementById("departmentType").value = "";
+    document.getElementById("departmentTotalMember").value = "";
 }
 function openModal() {
-    $('#myCreateAccountModal').modal('show');
+    $('#myCreateDepartmentModal').modal('show');
 }
-function createAccount() {
+function createDepartment() {
     // get data
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
-    let lastName = document.getElementById("lastName").value;
-    let firstName = document.getElementById("firstName").value;
-    let role = document.getElementById("role").value;
-    let departmentId = document.getElementById("departmentId").value;
-
+    let name = document.getElementById("name").value;
+    let totalMember = document.getElementById("totalMember").value;
+    let type = document.getElementById("type").value;
+    
+  
     // TODO validate
     // then fail validate ==> return;
 
-    const account = {
-        username: username,
-        password: password,
-        lastName: lastName,
-        firstName: firstName,
-        role: role,
-        departmentId: Number(departmentId),
+    const department = {
+        name: name,
+        totalMember: totalMember,
+        type: type
     };
 
     $.ajax({
-        url: baseUrl,
+        url: baseUrlDepartment,
         type: 'POST',
-        data: JSON.stringify(account), // body
+        data: JSON.stringify(department), // body
         contentType: "application/json", // type of body (json, xml, text)
         headers: headers,
         success: function (data, textStatus, xhr) {
             hideModal();
             showSuccessAlert();
-            buildAccountTable();
+            buildDepartmentTable();
         },
         error(jqXHR, textStatus, errorThrown) {
-            alert("Có lỗi khi tạo tài khoản");
+            alert("Có lỗi khi tạo phòng ban");
             console.log(jqXHR);
             console.log(textStatus);
             console.log(errorThrown);
         }
     });
 }
-function updateAccount() {
+function updateDepartment() {
     const id = document.getElementById("id").value;
-    const username = document.getElementById("username").value;
-    const firstName = document.getElementById("firstName").value;
-    const lastName = document.getElementById("lastName").value;
-    const role = document.getElementById("role").value;
-    const departmentId = document.getElementById("departmentId").value;
-
+    const name = document.getElementById("name").value;
+    const type = document.getElementById("type").value;
+   
     // TODO validate
     // then fail validate ==> return;
 
-    const account = {
+    const department = {
         id: Number(id),
-        username: username,
-        firstName: firstName,
-        lastName: lastName,
-        role: role,
-        departmentId: Number(departmentId),
-        isDeleted: 0
+        name: name,
+        type: type, 
     };
 
     $.ajax({
         url: url + "/" + id,
         type: 'PUT',
-        data: JSON.stringify(account),
+        data: JSON.stringify(department),
         contentType: "application/json", // type of body (json, xml, text)
         headers: headers,
         success: function (result) {
             // error
             if (!result) {
-                alert("Có lỗi khi cập nhật tài khoản");
+                alert("Có lỗi khi cập nhật phòng ban");
                 return;
             }
 
             // success
             hideModal();
             showSuccessAlert();
-            buildAccountTable();
+            buildDepartmentTable();
         }
     });
 }
-function deleteAccount(id) {
+function deleteDepartment(id) {
     // TODO validate
     $.ajax({
         url: url + "/" + id,
@@ -279,37 +260,37 @@ function deleteAccount(id) {
 
             // success
             showSuccessAlert();
-            buildAccountTable();
+            buildDepartmentTable();
         }
     });
 }
 function openConfirmDelete(id) {
-    // get index from employee's id
-    const index = accounts.findIndex(x => x.id === id);
-    const name = accounts[index].name;
+    // get index from department's id
+    console.log(departments)
+    const index = departments.findIndex(x => x.id === id);
 
-    const result = confirm("Bạn có muốn xóa " + name + " không?");
+    const result = confirm("Bạn có muốn xóa " + departments[index].name + " không?");
     if (result) {
-        deleteAccount(id);
+        deleteDepartment(id);
     }
 }
 function hideModal() {
-    $('#myCreateAccountModal').modal('hide');
+    $('#myCreateDepartmentModal').modal('hide');
 }
 function showSuccessAlert() {
     $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
         $("#success-alert").slideUp(500);
     });
 }
-function saveAccount() {
+function saveDepartment() {
     const id = document.getElementById("id").value;
 
     if (!id) {
-        createAccount();
+        createDepartment();
     } else {
-        updateAccount();
+        updateDepartment();
     }
 }
 function setupSearchEvent() {
-    buildAccountTable();
+    buildDepartmentTable();
 }

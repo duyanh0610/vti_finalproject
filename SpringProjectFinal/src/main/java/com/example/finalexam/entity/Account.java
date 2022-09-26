@@ -3,12 +3,11 @@ package com.example.finalexam.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLUpdate;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "account")
@@ -24,6 +23,7 @@ public class Account  {
     private String username;
 
     @Column(name = "password", unique = true, nullable = false, length = 50)
+//    @ColumnDefault("123456")
     private String password;
 
     @Column(name = "first_name", unique = true, nullable = false, length = 50)
