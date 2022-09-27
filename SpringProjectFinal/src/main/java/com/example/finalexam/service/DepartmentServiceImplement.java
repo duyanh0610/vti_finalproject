@@ -109,6 +109,11 @@ public class DepartmentServiceImplement implements DepartmentService{
                 .map(department -> modelMapper.map(department,DepartmentDTO.class));
     }
 
+    @Override
+    public void deleteDepartment(List<Integer> ids) {
+        departmentRepository.deleteByIds(ids);
+    }
+
 
     private void validateCreateDepartment(CreatingDepartmentForm creatingDepartmentForm) {
         validateName(creatingDepartmentForm.getName());

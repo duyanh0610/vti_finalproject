@@ -114,6 +114,11 @@ public class AccountServiceImplement implements AccountService {
         return  accountRepository.findByUsername(username).map(account -> modelMapper.map(account,AccountDTO.class));
     }
 
+    @Override
+    public void deleteAccounts(List<Integer> ids) {
+        accountRepository.deleteByIds(ids);
+    }
+
     private void validateCreate(CreatingAccountForm creatingAccountForm) {
         validateUsername(creatingAccountForm.getUsername());
         validateFirstName(creatingAccountForm.getFirstName());
@@ -240,7 +245,8 @@ public class AccountServiceImplement implements AccountService {
             orSpec = orSpec
                     .or(queryService.buildStringFilter(Constants.ACCOUNT.USERNAME, accountCriteria.getSearch()))
                     .or(queryService.buildStringFilter(Constants.ACCOUNT.FIRST_NAME, accountCriteria.getSearch()))
-                    .or(queryService.buildStringFilter(Constants.ACCOUNT.LAST_NAME, accountCriteria.getSearch()));
+                    .or(queryService.buildStringFilter(Constants.ACCOUNT.LAST_NAME, accountCriteria.getSearch()))
+                    .or(queryService.buildStringFilter(Constants.ACCOUNT.ROLE, accountCriteria.getSearch()));
 //                    .or(queryService.buildStringFilter("departmentName", accountCriteria.getDepartmentName()));
 
             where = where.and(orSpec);
@@ -248,11 +254,4 @@ public class AccountServiceImplement implements AccountService {
 
         return where;
     }
-
-
-
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        return null;
-//    }
 }

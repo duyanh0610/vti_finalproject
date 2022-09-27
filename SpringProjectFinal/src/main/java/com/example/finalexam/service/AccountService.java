@@ -9,6 +9,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AccountService  {
@@ -20,4 +21,5 @@ public interface AccountService  {
     Optional<AccountDTO> findByUsername(String username);
 
 
+    void deleteAccounts(List<Integer> ids);
 }

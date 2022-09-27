@@ -144,6 +144,3 @@ function showSuccessSnackBar(snackbarMessage) {
     setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
 }
 
-const langHeader = {
-    "lang": localStorage.getItem("LANG") ? localStorage.getItem("LANG") : "vi"
-}

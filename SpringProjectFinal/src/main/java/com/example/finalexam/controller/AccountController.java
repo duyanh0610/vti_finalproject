@@ -93,4 +93,8 @@ public class AccountController  {
         return  ResponseEntity.status(HttpStatus.OK).body(deletedAccount);
     }
 
+    @DeleteMapping()
+    public void deleteAccounts(@RequestParam(name ="ids") List<Integer> ids) {
+        accountService.deleteAccounts(ids);
+    }
 }

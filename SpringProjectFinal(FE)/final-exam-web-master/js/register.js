@@ -61,5 +61,5 @@ function register() {
 }
 
 const langHeader = {
-    "lang": localStorage.getItem("LANG") ? localStorage.getItem("LANG") : "vi"
+    "lang": storage.getItem("LANG") ? storage.getItem("LANG") : "vi"
 }

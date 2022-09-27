@@ -15,18 +15,58 @@
         <div class="col-sm-8">
           <h2>Danh sách tài khoản</h2>
         </div>
-        <div class="col-sm-4">
-          <button type="button" class="btn btn-info add-new" data-toggle="modal"
-                  onclick="openCreateAccountModal()">
-              <i class="fa fa-plus"></i>
-              Thêm mới
-          </button>
-        </div>
+
+        <div class="filter-wrapper row col-sm-4" >
+          <div class="filter-item">
+              <select style="width: 100px;" id="filter-role-select" style="width:200px;" class="operator">
+                  <option  value="">All Roles</option>
+                  <option value="ADMIN">Admin</option>
+                  <option value="EMPLOYEE">Employee</option>
+                  <option value="MANAGER">Manager</option>
+              </select>
+          </div>
+          <div class="filter-item">
+              <select style="width: 100px;" id="filter-department-select" style="width:200px;" class="operator">
+                  <option value="">All Departments</option>
+                  <!-- <option value="">alpha</option> 
+                  <option value="beta">beta</option>
+                  <option value="theta">theta</option>
+                  <option value="omega">omega</option> -->
+              </select>
+          </div>
+          <div class="filter-item">
+              <a href="#" data-toggle="tooltip" title="Filter" onclick="filterAccount()">
+                  <i class="fa-solid fa-filter"></i>
+              </a>
+          </div>
+      </div>
+      <div class="col-sm-4">
+        <button type="button" class="btn btn-info add-new" data-toggle="modal"
+                onclick="showDeleteMultipleAccountsModal()">
+            <i class="fa fa-plus"></i>
+            Xóa
+        </button>
+
+        <button type="button" class="btn btn-info add-new" data-toggle="modal"
+                onclick="openCreateAccountModal()">
+            <i class="fa fa-plus"></i>
+            Thêm mới
+        </button>
+        
+      </div>
+    
       </div>
     </div>
     <table class="table table-bordered">
       <thead>
       <tr>
+        <th style="width: 45px;">
+          <span class="account-checkbox">
+              <input type="checkbox" id="checkbox-all" name="checkbox-all"
+                  onclick="onChangeAccountCheckboxAll()">
+              <label></label>
+          </span>
+        </th>
         <th>
           <a href="#" onclick="changeIdSort('id')">
             ID
@@ -40,9 +80,24 @@
           </a>
         </th>
       
-        <th>Tên</th>
-        <th>Vai trò</th>
-        <th>Tên phòng ban</th>
+        <th>
+          <a href="#" onclick="changeAccountSort('firstName')">
+            Tên 
+            <i id="firstName-sort" class="fa-solid fa-sort"></i>
+          </a>
+        </th>
+        <th>
+          <a href="#" onclick="changeAccountSort('role')">
+            Vai trò
+            <i id="role-sort" class="fa-solid fa-sort"></i>
+          </a>
+        </th>
+        <th>
+          <a href="#" onclick="changeAccountSort('departmentName')">
+            Phòng ban
+            <i id="departmentName-sort" class="fa-solid fa-sort"></i>
+          </a>
+        </th>
       </tr>
       </thead>
       

@@ -1,11 +1,11 @@
 
 var departments = []
 var baseUrlDepartment = "http://localhost:8080/api/v1/departments"
- currentPageDepartment = 1;
- sizePageDepartment = 10;
+let  currentPageDepartment = 1;
+let sizePageDepartment = 10;
 // sorting
-sortFieldDepartment = "id";
-isAscDepartment = true;
+let sortFieldDepartment = "totalMember";
+let isAscDepartment = false;
 function Department(id, name, totalMember, type, createdDate) {
     this.id = id;
     this.name = name;
@@ -62,23 +62,31 @@ function parseDepartmentData(data){
    
 }
 function fillDepartmentToTable(){
-    // console.log(departments)
     departments.forEach(function(item, index){
         var mem = item.totalMember == null ? 0 : item.totalMember
     
         $('tbody').append(
             '<tr>' +
+            '<td style="width:45px;">' +
+                '<span style="department-checkbox">' +
+                    '<input type="checkbox" id="checkbox-' + index + '" type ="checkbox" onclick="onChangeDepartmentCheckboxItem()">' +
+                '</span>' +
+            '</td>'+
             '<td id = "departmentId">' + item.id + '</td>' +
             '<td id = "departmentName">' + item.name + '</td>' +
             '<td id = "departmentType">' + item.type + '</td>' +
             '<td id = "departmentTotalMember">' + mem + '</td>' +
-            '<td id = "departmentCreateDate">' + item.createdDate + '</td>' +
+            '<td id = "departmentCreatedcDate">' + item.createdDate + '</td>' +
             '<td>' +
             '<a class="edit" title="Edit" data-toggle="tooltip" onclick="openUpdateDepartmentModal('
             + item.id + ')">'
             + '<i class="material-icons">&#xE254;</i>'
             + '</a>' +
-            '<a class="delete" title="Delete" data-toggle="tooltip" onclick="openConfirmDelete('
+            '<a class="delete" title="Delete" data-toggle="tooltip" onclick="openConfirmDeleteDepartment('
+            + item.id + ')">'
+            + '<i class="material-icons">&#xE872;</i>'
+            + '</a>' +
+            '<a class="add" title="Add" data-toggle="tooltip" onclick="openAddAccount('
             + item.id + ')">'
             + '<i class="material-icons">&#xE872;</i>'
             + '</a>' +
@@ -88,7 +96,7 @@ function fillDepartmentToTable(){
     })
 }
 function fillDepartmentPaging(numberOfElements, totalPages){
-    console.log(document.getElementById("department-previousPage-btn"))
+    
     if (currentPageDepartment > 1) {
         document.getElementById("department-previousPage-btn").disabled = false;
     } else {
@@ -153,27 +161,27 @@ function changeDepartmentPage(page) {
     buildDepartmentTable();
 }
 function openCreateDepartmentModal() {
-    resetForm();
-    openModal();
+    resetFormDepartment();
+    openModalDepartment();
 }
 function openUpdateDepartmentModal(id) {
 
     // get index from employee's id
     const index = departments.findIndex(x => x.id === id);
-    console.log(departments[index]);
+    
     // fill data
     document.getElementById("name").value = departments[index].name;
     document.getElementById("totalMember").value = departments[index].totalMember;
     document.getElementById("type").value = departments[index].type;
    
-    openModal();
+    openModalDepartment();
 }
-function resetForm() {
-    document.getElementById("departmentName").value = "";
-    document.getElementById("departmentType").value = "";
-    document.getElementById("departmentTotalMember").value = "";
+function resetFormDepartment() {
+    document.getElementById("name").value = "";
+    document.getElementById("type").value = "";
+    document.getElementById("totalMember").value = "";
 }
-function openModal() {
+function openModalDepartment() {
     $('#myCreateDepartmentModal').modal('show');
 }
 function createDepartment() {
@@ -199,8 +207,8 @@ function createDepartment() {
         contentType: "application/json", // type of body (json, xml, text)
         headers: headers,
         success: function (data, textStatus, xhr) {
-            hideModal();
-            showSuccessAlert();
+            hideModalDepartment();
+            showSuccessAlertDepartment();
             buildDepartmentTable();
         },
         error(jqXHR, textStatus, errorThrown) {
@@ -215,6 +223,7 @@ function updateDepartment() {
     const id = document.getElementById("id").value;
     const name = document.getElementById("name").value;
     const type = document.getElementById("type").value;
+    const totalMember = document.getElementById("totalMember").value;
    
     // TODO validate
     // then fail validate ==> return;
@@ -223,10 +232,11 @@ function updateDepartment() {
         id: Number(id),
         name: name,
         type: type, 
+        totalMember: totalMember
     };
 
     $.ajax({
-        url: url + "/" + id,
+        url: baseUrlDepartment + "/" + id,
         type: 'PUT',
         data: JSON.stringify(department),
         contentType: "application/json", // type of body (json, xml, text)
@@ -239,8 +249,8 @@ function updateDepartment() {
             }
 
             // success
-            hideModal();
-            showSuccessAlert();
+            hideModalDepartment();
+            showSuccessAlertDepartment();
             buildDepartmentTable();
         }
     });
@@ -248,7 +258,7 @@ function updateDepartment() {
 function deleteDepartment(id) {
     // TODO validate
     $.ajax({
-        url: url + "/" + id,
+        url: baseUrlDepartment + "/" + id,
         type: 'DELETE',
         headers: headers,
         success: function (result) {
@@ -259,14 +269,14 @@ function deleteDepartment(id) {
             }
 
             // success
-            showSuccessAlert();
+            showSuccessAlertDepartment();
             buildDepartmentTable();
         }
     });
 }
-function openConfirmDelete(id) {
+function openConfirmDeleteDepartment(id) {
     // get index from department's id
-    console.log(departments)
+   
     const index = departments.findIndex(x => x.id === id);
 
     const result = confirm("Bạn có muốn xóa " + departments[index].name + " không?");
@@ -274,10 +284,10 @@ function openConfirmDelete(id) {
         deleteDepartment(id);
     }
 }
-function hideModal() {
+function hideModalDepartment() {
     $('#myCreateDepartmentModal').modal('hide');
 }
-function showSuccessAlert() {
+function showSuccessAlertDepartment() {
     $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
         $("#success-alert").slideUp(500);
     });
@@ -291,6 +301,109 @@ function saveDepartment() {
         updateDepartment();
     }
 }
-function setupSearchEvent() {
+function setupSearchDeaprtmentEvent() {
     buildDepartmentTable();
 }
+
+
+function onChangeDepartmentCheckboxAll() {
+    var i = 0;
+    while (true) {
+        var checkboxItem = document.getElementById("checkbox-" + i);
+        if (checkboxItem !== undefined && checkboxItem !== null) {
+            // checkboxItem.checked = document.getElementById("checkbox-all").checked
+                if (document.getElementById("checkbox-all").checked) {
+                    checkboxItem.checked = true;
+                } else {
+                    checkboxItem.checked = false;
+                }
+            i++;
+        } else {
+            break;
+        }
+    }
+}
+function onChangeDepartmentCheckboxItem() {
+    var i = 0;
+    while (true) {
+        var checkboxItem = document.getElementById("checkbox-" + i);
+        if (checkboxItem !== undefined && checkboxItem !== null) {
+            if (!checkboxItem.checked) {
+                document.getElementById("checkbox-all").checked = false;
+                return;
+            }
+            i++;
+        } else {
+            break;
+        }
+    }
+    document.getElementById("checkbox-all").checked = true;
+}
+
+function showDeleteMultipleDepartmentsModal() {
+    $('#deleteMultipleAccountsModal').modal('show');
+
+    // get checked
+    var ids = [];
+    
+    var i = 0;
+    while (true) {
+        var checkboxItem = document.getElementById("checkbox-" + i);
+        if (checkboxItem !== undefined && checkboxItem !== null) {
+            if (checkboxItem.checked) {
+                ids.push(departments[i].id);
+                
+            }
+            i++;
+        } else {
+            break;
+        }
+    }
+
+    var result = confirm("Are you sure you want to delete");
+    if(result){
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/departments?ids=' + ids,
+            type: 'DELETE',
+            headers: headers,
+            success: function(result) {
+            //     // error
+            //     if (result == undefined || result == null) {
+            //         alert("Error when loading data");
+            //         return;
+            //     }
+    
+            //     // success
+            //     showSuccessSnackBar("Success! Account deleted.");
+            //     $('#deleteMultipleAccountsModal').modal('hide');
+            refreshDeparmtentTable();
+            }
+        });
+    }
+}
+
+function filterDepartment() {
+    buildAccountTable();
+}
+
+function refreshDeparmtentTable() {
+    // refresh paging
+    currentPageDepartment = 1;
+    // size = 10;
+
+    // refresh sorting
+    sortFieldDepartment = "id";
+    isAscDepartment = false;
+
+    document.getElementById("checkbox-all").checked = false
+    // refresh search
+    document.getElementById("search-department-input").value = "";
+
+    // refresh filter
+    // $("#filter-department-select").empty();
+    // $('#filter-role-select').val('').trigger('change');
+
+    // Get API
+    buildDepartmentTable();
+}
+

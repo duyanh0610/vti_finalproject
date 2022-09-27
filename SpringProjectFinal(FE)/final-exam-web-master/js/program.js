@@ -16,17 +16,17 @@ $(function () {
 
 
 function isLogin() {
-    return !!localStorage.getItem("ID");
+    return !!storage.getItem("ID");
 }
 
 function logout() {
-    localStorage.removeItem("ID");
-    localStorage.removeItem("FULL_NAME");
-    localStorage.removeItem("FIRST_NAME");
-    localStorage.removeItem("LAST_NAME");
-    localStorage.removeItem("ROLE");
-    localStorage.removeItem("USERNAME");
-    localStorage.removeItem("PASSWORD");
+    storage.removeItem("ID");
+    storage.removeItem("FULL_NAME");
+    storage.removeItem("FIRST_NAME");
+    storage.removeItem("LAST_NAME");
+    storage.removeItem("ROLE");
+    storage.removeItem("USERNAME");
+    storage.removeItem("PASSWORD");
 
     // redirect to login page
     window.location.replace("http://localhost:5501/html/loginform.html");
@@ -35,6 +35,8 @@ function logout() {
 
 function clickNavHome() {
     $(".main").load("home.html");
+
+    hello()
 }
 function clickNavAccountList(){
     $(".main").load("accountList.html")
@@ -70,7 +72,7 @@ function hasAuthorized() {
     let departmentListElem = document.getElementById("departmentListId");
 
     if (accountListElem && departmentListElem) {
-        switch (localStorage.getItem("ROLE")) {
+        switch (storage.getItem("ROLE")) {
             case "ADMIN":
                 accountListElem.style.display = "block";
                 departmentListElem.style.display = "block";
@@ -89,7 +91,7 @@ function hasAuthorized() {
 
 function handleSelectLang() {
     const lang = document.getElementById("langSwitchId").value;
-    localStorage.setItem("LANG", lang);
+    storage.setItem("LANG", lang);
 
     const homeLabel = document.getElementById("homeLabelId");
     const headerHomeLabelId = document.getElementById("headerHomeLabelId");
@@ -125,7 +127,7 @@ function handleSelectLang() {
 //         },
     
 //         beforeSend: function (xhr) {
-//             xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("token"));
+//             xhr.setRequestHeader("Authorization", "Bearer " + storage.getItem("token"));
 //         },
 //         success: function (data, textStatus, xhr) {
 //             // reset list employees

@@ -2,6 +2,11 @@
 var accounts = []
 var baseUrlAccount = "http://localhost:8080/api/v1/accounts"
 
+const size = 10;
+let currentPage = 1;
+let sortField = "id";
+let isAsc = true;
+
 // sorting
 
 function Account(id, username, lastName, firstName, role, deptId, deptName) {
@@ -15,7 +20,6 @@ function Account(id, username, lastName, firstName, role, deptId, deptName) {
 }
 function buildAccountTable() {
     $('tbody').empty();
-
     getaccounts();
 }
 function getaccounts() {
@@ -25,9 +29,17 @@ function getaccounts() {
         + "&sort=" + sortField + "," + (isAsc ? "asc" : "desc");
     
     const searchValueAccount = document.getElementById("search-account-input");
-    // console.log(searchValueAccount)
+    const filterAccountRole = document.getElementById("filter-role-select");
+    const filterAccountDepartment = document.getElementById("filter-department-select")
+
     if (searchValueAccount?.value) {
         urlAccount += "&search.contains=" + searchValueAccount.value;
+    }
+    if(filterAccountRole?.value) {
+        urlAccount += "&role.contains=" + filterAccountRole.value;
+    }
+    if(filterAccountDepartment?.value) {
+        urlAccount += "&departmentName.contains" + filterAccountDepartment.value;
     }
 
     // call API from server
@@ -65,10 +77,14 @@ function parseAccountData(data){
    
 }
 function fillAccountToTable(){
-    // console.log(accounts)
     accounts.forEach(function(item, index){
         $('tbody').append(
             '<tr>' +
+            '<td style="width:45px;">' +
+                '<span style="account-checkbox">' +
+                    '<input type="checkbox" id="checkbox-' + index + '" type ="checkbox" onclick="onChangeAccountCheckboxItem()">' +
+                '</span>' +
+            '</td>'+
             '<td id = "accountId">' + item.id + '</td>' +
             '<td id = "accountUsername">' + item.username + '</td>' +
             '<td id = "accountFullName">' + item.firstName +' ' + item.lastName + '</td>' +
@@ -85,6 +101,8 @@ function fillAccountToTable(){
             + '</a>' +
             '</td>' +
             '</tr>'
+
+            // <td><input id="checkbox-0" type="checkbox" onclick="onChangeCheckboxItem()"></td>
         )
     })
 }
@@ -311,3 +329,105 @@ function saveAccount() {
 function setupSearchAccountEvent() {
     buildAccountTable();
 }
+
+function onChangeAccountCheckboxAll() {
+    var i = 0;
+    while (true) {
+        var checkboxItem = document.getElementById("checkbox-" + i);
+        if (checkboxItem !== undefined && checkboxItem !== null) {
+            // checkboxItem.checked = document.getElementById("checkbox-all").checked
+                if (document.getElementById("checkbox-all").checked) {
+                    checkboxItem.checked = true;
+                } else {
+                    checkboxItem.checked = false;
+                }
+            i++;
+        } else {
+            break;
+        }
+    }
+}
+function onChangeAccountCheckboxItem() {
+    var i = 0;
+    while (true) {
+        var checkboxItem = document.getElementById("checkbox-" + i);
+        if (checkboxItem !== undefined && checkboxItem !== null) {
+            if (!checkboxItem.checked) {
+                document.getElementById("checkbox-all").checked = false;
+                return;
+            }
+            i++;
+        } else {
+            break;
+        }
+    }
+    document.getElementById("checkbox-all").checked = true;
+}
+
+function showDeleteMultipleAccountsModal() {
+    $('#deleteMultipleAccountsModal').modal('show');
+
+    // get checked
+    var ids = [];
+    var fullnames = [];
+    var i = 0;
+    while (true) {
+        var checkboxItem = document.getElementById("checkbox-" + i);
+        if (checkboxItem !== undefined && checkboxItem !== null) {
+            if (checkboxItem.checked) {
+                ids.push(accounts[i].id);
+                fullnames.push(accounts[i].fullName);
+            }
+            i++;
+        } else {
+            break;
+        }
+    }
+
+    var result = confirm("Are you sure you want to delete");
+    if(result){
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/accounts?ids=' + ids,
+            type: 'DELETE',
+            headers:headers,
+            success: function(result) {
+            //     // error
+            //     if (result == undefined || result == null) {
+            //         alert("Error when loading data");
+            //         return;
+            //     }
+    
+            //     // success
+            //     showSuccessSnackBar("Success! Account deleted.");
+            //     $('#deleteMultipleAccountsModal').modal('hide');
+            refreshAccountTable();
+            }
+        });
+    }
+}
+
+function filterAccount() {
+    buildAccountTable();
+}
+
+function refreshAccountTable() {
+    // refresh paging
+    currentPage = 1;
+    // size = 10;
+
+    // refresh sorting
+    sortField = "id";
+    isAsc = true;
+
+    document.getElementById("checkbox-all").checked = false
+    // refresh search
+    document.getElementById("search-account-input").value = "";
+
+    // refresh filter
+    $("#filter-department-select").empty();
+    $('#filter-role-select').val('').trigger('change');
+
+    // Get API
+    buildAccountTable();
+}
+

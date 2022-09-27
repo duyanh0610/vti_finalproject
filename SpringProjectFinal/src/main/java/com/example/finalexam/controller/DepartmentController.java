@@ -58,4 +58,8 @@ public class DepartmentController {
         DepartmentDTO deletedDepartment = departmentService.delete(id);
         return  ResponseEntity.status(HttpStatus.OK).body(deletedDepartment);
     }
+    @DeleteMapping()
+    public void deleteDepartments(@RequestParam(name ="ids") List<Integer> ids) {
+        departmentService.deleteDepartment(ids);
+    }
 }
